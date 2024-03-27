@@ -1,38 +1,58 @@
-import { FunctionComponent, useState } from "react"
+import { FunctionComponent, useEffect, useState} from "react"
 import { useParams } from "react-router"
 
 type Dataprops = {
-    name: string
+    id: string,
+    name: string,
+    deleteRecords: (obj: any) => any
 }
 
 
 const Items: FunctionComponent<Dataprops> = ({
-    name
+    id,
+    name,
+    deleteRecords
 }) => {
 
-    const params = useParams()
+    const [records, setrecords]  = useState([])
 
-    const deleteRecord = async() => {
-        await fetch(`http://127.0.0.1:8000/delete/${params.id?.toString()}`, {
+    useEffect(() => {
+        let fetchrecords = async() => {
+            const response = await fetch("http://127.0.0.1:8000/get")
+            const data = await response.json()
+            if (!response.ok) {
+                alert("error occurred")
+            }
+            setrecords(data)
+        }
+        fetchrecords()
+
+    }, [])
+
+    const deleteRecord = async(recordid: any) => {
+        const response = await fetch(`http://127.0.0.1:8000/delete/${recordid}`, {
             method:"DELETE"
         })
-        .then((response) => {
-            if(!response.ok){
-                alert("Error occurred")
-            }
-            alert("record deleted")
-        })
-        .catch((error) => console.error(error))
-        
+        if(!response.ok){
+            alert("Error occurred")
+            console.log(recordid)
+        }
+        else alert("record deleted")
+        console.log(recordid)
     }
 
 
     return (
-        <div className="flex flex-row justify-around flex-wrap text-black">
-            <pre>{name}</pre>
-            <a href="#">Edit</a>
-            <button className="text-white" onClick={deleteRecord}>Delete</button>
-        </div>
+        
+        <tr className="text-black">
+            <td>{name}</td>
+            <td>
+                <a>Edit</a> |
+                <button 
+                className="text-white"
+                onClick={() => deleteRecord(records)}>Delete</button>
+            </td>
+        </tr>
     )
 }
 
