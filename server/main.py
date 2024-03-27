@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 from models.model import Data
 from db import connect_db
+from typing import Union
 
 app = FastAPI()
 
@@ -47,8 +48,8 @@ async def get_records():
     except Exception as e:
         print(e)
 
-@app.get("/get/{id}")
-async def get_data_by_id(id: str):
+@app.get("/get/")
+async def get_data_by_id(id: Union[str, None] = None):
     record = await coll.find_one({"_id": ObjectId(id)})
     if record:
         return helper_struct(record)    
@@ -63,6 +64,20 @@ async def post_records(item: dict):
     else: 
         return "failed to insert record"
     
+@app.put("/put/")
+async def update_records(id: str, obj: dict):
+    if len(obj) < 1:
+        return False
+    record = await coll.find_one({"_id": ObjectId(id)})
+    if record:
+        updated_record = await coll.update_one(
+            {"_id": ObjectId(id)}, {"$set": obj}
+        )
+    if updated_record:
+        return Response("Record Updated", status_code=200)
+    else:
+        return Response("Error updating record", status_code=500)
+
 @app.delete("/delete/{id}")
 async def delete_record(id: str):
     try:
