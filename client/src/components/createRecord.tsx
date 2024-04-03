@@ -5,20 +5,23 @@ import { useNavigate } from "react-router-dom"
 export const Create = () => {
 
     const [toSend, settoSend] = useState({
-        name: ''
+        name: '',
+        image: ''
       })
 
     const navigate = useNavigate()
 
     const handleSubmit = async(event:React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        await fetch('http://127.0.0.1:8000/post',{
+        await fetch('http://127.0.0.1:8000/',{
           method:'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'accept': 'application/json',
+            'Content-Type': 'multipart/form-data'
           },
           body:JSON.stringify({
-            name:toSend.name
+            name:toSend.name,
+            image: toSend.image
           })
         })
         .then((response) => {
@@ -33,6 +36,8 @@ export const Create = () => {
     //handle input change in form fields
     const handleFormChange = (event:React.ChangeEvent<HTMLInputElement>) => {
         settoSend({ ...toSend, [event.target.name]: event.target.value });
+        console.log(toSend)
+        
     }
 
     return(
@@ -52,6 +57,24 @@ export const Create = () => {
                       autoComplete="name"
                       placeholder="Enter item name"
                       value={toSend.name}
+                      onChange={handleFormChange}
+                      required
+                      className="h-[52px] block w-full rounded-[50px] py-[5px] px-[25px] border-0 focus:outline-none"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-row justify-between text-black">
+                  <label
+                  htmlFor="file"
+                  className="text-black"
+                  >
+                    Choose Image
+                  </label>
+                  <div className="mt-[10px]">
+                    <input
+                      id="file"
+                      name="file"
+                      type="file"
                       onChange={handleFormChange}
                       required
                       className="h-[52px] block w-full rounded-[50px] py-[5px] px-[25px] border-0 focus:outline-none"

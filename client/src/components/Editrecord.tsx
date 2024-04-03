@@ -17,7 +17,7 @@ const Edit = () => {
       async function getRecords() {
         const recordid = params.id?.toString()
         console.log(recordid)
-        const response = await fetch(`http://localhost:8000/get?id=${recordid}`);  
+        const response = await fetch(`http://localhost:8000/?id=${recordid}`);  
         if (!response.ok) {
           const message = `An error occurred: ${response.statusText}`;
           window.alert(message);
@@ -42,7 +42,7 @@ const Edit = () => {
           name: toSend.name
         }
         const recordid = params.id?.toString()
-        await fetch(`http://127.0.0.1:8000/put/?id=${recordid}`,{
+        await fetch(`http://127.0.0.1:8000/?id=${recordid}`,{
           method:'PUT',
           headers: {
             'Content-Type': 'application/json'
