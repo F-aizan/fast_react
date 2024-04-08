@@ -22,13 +22,13 @@ app.add_middleware(
 )
 
 # connect to db
-async def get_db_params():
-    connection = connect_db()
-    db = connection.get_database("projectdb")
-    if connection and db is not None:
-        return db
-    else:
-        return "connection error"
+# async def get_db_params():
+#     connection = connect_db()
+#     db = connection.get_database("projectdb")
+#     if connection and db is not None:
+#         return db
+#     else:
+#         return "connection error"
 connection = connect_db()
 db = connection.get_database("projectdb")
 coll = db.get_collection("Blogs")
@@ -58,21 +58,12 @@ async def get_data_by_id_or_all(id: Union[str, None] = None):
     
 
 
-""" @app.post("/")
-async def post_records(item: dict):
-    item = jsonable_encoder(item)
-    result = await coll.insert_one(item)
-    if result:
-        return "record inserted"
-    else: 
-        return "failed to insert record" """
-
 #post with image
 @app.post("/")
-async def post_data(file: Annotated[bytes, File()], name: str):
+async def post_data(itemname: Annotated[str, None], itemImage: Annotated[bytes, File()]):
     record = await coll.insert_one({
-        'name': name,
-        'image': file
+        "name": itemname,
+        "image": itemImage
     })
     if record:
         return "data posted"
@@ -80,15 +71,16 @@ async def post_data(file: Annotated[bytes, File()], name: str):
         return "error in posting data"
     
 @app.put("/")
-async def update_records(id: str, obj: dict):
-    if len(obj) < 1:
-        return False
+async def update_records(id: str, itemname: str, itemImage: Annotated[bytes, File()]):
     record = await coll.find_one({"_id": ObjectId(id)})
+    result = False
     if record:
         updated_record = await coll.update_one(
-            {"_id": ObjectId(id)}, {"$set": obj}
+            {"_id": ObjectId(id)}, {"$set": {"name": itemname, "image": itemImage}}
         )
-    if updated_record:
+        if updated_record:
+            result = True
+    if result:
         return Response("Record Updated", status_code=200)
     else:
         return Response("Error updating record", status_code=500)

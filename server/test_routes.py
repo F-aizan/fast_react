@@ -22,7 +22,7 @@ class ModelName(str, Enum):
 class Item(BaseModel):
     id: int = Field(title="id", description="id of the item")
     name: str = Field(title="name", description="name of the item", max_length=30)
-    prices: list = []
+    prices: int = Field(title="price", description="price of item")
 
     model_config = {
         "json_schema_extra": {
@@ -30,7 +30,7 @@ class Item(BaseModel):
                 {
                     "id": 1,
                     "name": "name1",
-                    "prices": [1, 3, 4]
+                    "prices": 20
                 }
             ]
         }
@@ -161,3 +161,8 @@ def create_file(file: Annotated[bytes, File()]):
 @myapp.post("/uploadfile")
 async def upload_files(file: UploadFile):
     return {"filename": str(file.content_type)}
+
+#post endpoint for model
+@myapp.post("/modelpoint", response_model=None)
+def post_model(item:Item):
+    return item
