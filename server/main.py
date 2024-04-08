@@ -3,7 +3,7 @@ from bson import ObjectId
 from fastapi import FastAPI, File, Form, Response, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
-from models.model import Data
+from models.model import Item
 from db import connect_db
 from typing_extensions import Annotated
 from typing import Union
@@ -38,9 +38,9 @@ def helper_struct(obj) -> dict:
     return {
         "id": str(obj["_id"]),
         "name": obj["name"],
+        "price": obj["price"],
         "image": base64.b64encode(obj["image"])
     }
-
 
 
 @app.get("/")
@@ -57,12 +57,12 @@ async def get_data_by_id_or_all(id: Union[str, None] = None):
         return "no record found"
     
 
-
 #post with image
 @app.post("/")
-async def post_data(itemname: Annotated[str, None], itemImage: Annotated[bytes, File()]):
+async def post_data(itemname: Annotated[str, None], itemprice: Annotated[int, None], itemImage: Annotated[bytes, File()] = None):
     record = await coll.insert_one({
         "name": itemname,
+        "price": itemprice,
         "image": itemImage
     })
     if record:
@@ -71,12 +71,12 @@ async def post_data(itemname: Annotated[str, None], itemImage: Annotated[bytes, 
         return "error in posting data"
     
 @app.put("/")
-async def update_records(id: str, itemname: str, itemImage: Annotated[bytes, File()]):
+async def update_records(id: str, itemname: str, itemprice: Annotated[int, None], itemImage: Annotated[bytes, File()] = None):
     record = await coll.find_one({"_id": ObjectId(id)})
     result = False
     if record:
         updated_record = await coll.update_one(
-            {"_id": ObjectId(id)}, {"$set": {"name": itemname, "image": itemImage}}
+            {"_id": ObjectId(id)}, {"$set": {"name": itemname, "price": itemprice, "image": itemImage}}
         )
         if updated_record:
             result = True

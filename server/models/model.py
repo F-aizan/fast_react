@@ -1,15 +1,15 @@
 from typing import Union
 from pydantic import BaseModel
 
-class Data(BaseModel):
+class Item(BaseModel):
     id: int
     name: str
-    image: bytes
+    price: int
 
 
 
-class UpdateData(BaseModel):
+class UpdateItem(BaseModel):
     id: int
     name: str
-    image: bytes
+    price: int
     
