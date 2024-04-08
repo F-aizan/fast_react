@@ -1,50 +1,16 @@
-import { FunctionComponent, useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom"
 
-type Dataprops = {
-    name: string,
-    image: string,
-    deleteRecords: (obj: any) => any,
-    records: any
-  }
-  {/*
 
-  const Items: FunctionComponent<Dataprops> = ({
-    name,
-    image,
-    deleteRecords,
-    records
-  }) => {
-  
-    return (
-        
-        <tr className="flex flex-column justify-between">
-            <td className="text-black">{name}</td>
-            <img src={image} alt="image" />
-            <td>
-                <Link to={`/edit/${records.id}`}>Edit </Link> 
-                <span className="font-bold text-black">|</span>
-                <button 
-                className="text-white"
-                onClick={() => deleteRecords(records.id)}>Delete</button>
-            </td>
-        </tr>
-    )
-  }
-  const itemsdata = () => {
-    return records.length > 0 && records.map((values:any) => {
-      return (
-        <Items image={values.image} records={records} key={values.id} name={values.name} deleteRecords={() => deleteRecord(values.id)}/>
-      )
-    })
-  }*/}
 
 const Records = () => {
 
       const [records, setrecords] = useState([])
+      const [loading, setloading] = useState(false)
 
       useEffect(() => {
         async function getRecords() {
+          setloading(true)
           const response = await fetch(`http://localhost:8000/`);  
           if (!response.ok) {
             const message = `An error occurred: ${response.statusText}`;
@@ -53,7 +19,7 @@ const Records = () => {
                 <h1>Unable to fetch Records</h1>
             );
           }
-      
+          setloading(false)
           const records = await response.json();
           setrecords(records);
         }
@@ -82,14 +48,12 @@ const Records = () => {
           <h1>Your Items</h1>
         </div>
         }
-
+        {!loading && records.length == 0 && <h1>No Items to display</h1>}
         <div className="grid grid-cols-3 gap-10 text-black rounded-[20px]">    
           {records.map((item: any) => (
             <div className="flex flex-col justify-between bg-white px-10 py-10 rounded-[20px]" key={item.id}>
               {item.name}
-               <img src={`data:image/png;base64,${item.image}`} alt="image" /> 
-              {/* <p>{`data:text/plain;base64,${item.image}`}</p>  */}
-              {/* {console.log(item.image)} */}
+               <img src={`data:image/png;base64,${item.image}`} className="rounded-[20px]" loading="lazy" alt="image" /> 
               <div className="flex flex-row justify-around">
                 <Link to={`/edit/${item.id}`}>
                   <button className="text-white">Edit</button>
@@ -98,7 +62,7 @@ const Records = () => {
               </div>
             </div>
           ))}
-          {records.length == 0 && <h1 className="text-center text-white">No Items to display</h1>}
+          {loading && <h1 className="text-white w-full text-center">Loading Items......</h1>}
         </div>
       </>
       

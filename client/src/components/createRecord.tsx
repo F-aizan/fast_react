@@ -4,40 +4,40 @@ import { useNavigate } from "react-router-dom"
 
 export const Create = () => {
 
-    const [toSend, settoSend] = useState({
-        name: '',
-        image: ''
-      })
+  const [itemName, setItemname] = useState('')
 
     const navigate = useNavigate()
 
     const handleSubmit = async(event:React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        await fetch('http://127.0.0.1:8000/',{
+        const formdata= new FormData()
+        const imagedata:any = document.querySelector('input[type="file"]');
+        if (imagedata){
+          formdata.append("itemImage",imagedata.files[0])
+        }
+        
+        await fetch(`http://127.0.0.1:8000/?itemname=${itemName}`,{
           method:'POST',
-          headers: {
-            'accept': 'application/json',
-            'Content-Type': 'multipart/form-data'
-          },
-          body:JSON.stringify({
-            name:toSend.name,
-            image: toSend.image
-          })
+          body:formdata
         })
         .then((response) => {
           if(!response.ok) {
             alert("Error occurred")
           }
+          navigate('/')
         })
-        .then(() => navigate('/'))
+  
         .catch((error) => alert(error))
       }
 
     //handle input change in form fields
     const handleFormChange = (event:React.ChangeEvent<HTMLInputElement>) => {
-        settoSend({ ...toSend, [event.target.name]: event.target.value });
-        console.log(toSend)
-        
+        if(event.target.name == 'name'){
+          
+          setItemname(event.target.value)
+          console.log(itemName);
+          
+        }
     }
 
     return(
@@ -56,7 +56,7 @@ export const Create = () => {
                       type="text"
                       autoComplete="name"
                       placeholder="Enter item name"
-                      value={toSend.name}
+                      value={itemName}
                       onChange={handleFormChange}
                       required
                       className="h-[52px] block w-full rounded-[50px] py-[5px] px-[25px] border-0 focus:outline-none"
@@ -65,22 +65,22 @@ export const Create = () => {
                 </div>
                 <div className="flex flex-row justify-between text-black">
                   <label
-                  htmlFor="file"
+                  htmlFor="fileupload"
                   className="text-black"
                   >
                     Choose Image
                   </label>
                   <div className="mt-[10px]">
                     <input
-                      id="file"
-                      name="file"
+                      id="fileupload"
+                      name="fileupload"
                       type="file"
                       onChange={handleFormChange}
                       required
                       className="h-[52px] block w-full rounded-[50px] py-[5px] px-[25px] border-0 focus:outline-none"
                     />
                   </div>
-                </div>
+                </div> 
 
 
                 <div>

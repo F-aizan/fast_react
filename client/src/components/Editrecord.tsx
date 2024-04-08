@@ -1,16 +1,11 @@
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom";
-
-
-
-
+import { useNavigate, useParams } from "react-router-dom";
 
 const Edit = () => {
 
 
-    const [toSend, settoSend] = useState({
-        name:''
-    })
+  const [itemName, setItemname] = useState('')
+    const navigate = useNavigate()
     const params = useParams()
 
     useEffect(() => {
@@ -27,7 +22,7 @@ const Edit = () => {
         }
     
         const data = await response.json();
-        settoSend(data);
+        setItemname(data.name)
 
       }
       getRecords()
@@ -37,30 +32,30 @@ const Edit = () => {
 
     const handleSubmit = async(event:React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-
-        const editedRecord = {
-          name: toSend.name
+        const formdata= new FormData()
+        const imagedata:any = document.querySelector('input[type="file"]');
+        if (imagedata){
+          formdata.append("itemImage",imagedata.files[0])
         }
         const recordid = params.id?.toString()
-        await fetch(`http://127.0.0.1:8000/?id=${recordid}`,{
+        await fetch(`http://127.0.0.1:8000/?id=${recordid}&itemname=${itemName}`,{
           method:'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body:JSON.stringify(editedRecord)
+          body:formdata
         })
         .then((response) => {
           if(!response.ok) {
             alert("Error occurred")
           }
+          navigate('/')
         })
-        .then(() => location.replace("/"))
         .catch((error) => alert(error))
       }
     
       //handle input change in form fields
       const handleFormChange = (event:React.ChangeEvent<HTMLInputElement>) => {
-        settoSend({ ...toSend, [event.target.name]: event.target.value });
+        if(event.target.name == 'name'){
+          setItemname(event.target.value)
+        }
       }
     
     return (
@@ -72,22 +67,38 @@ const Edit = () => {
                 <h1 className='text-black'>Edit Items Here</h1>
                 <form className="space-y-[20px]" action="#" onSubmit={handleSubmit}>
                     <div>
-                    <div className="mt-[10px]">
-                        <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        autoComplete="name"
-                        placeholder="Enter item name"
-                        value={toSend.name}
-                        onChange={handleFormChange}
-                        required
-                        className="h-[52px] block w-full rounded-[50px] py-[5px] px-[25px] border-0 focus:outline-none"
-                        />
-                    </div>
+                      <div className="mt-[10px]">
+                          <input
+                          id="name"
+                          name="name"
+                          type="text"
+                          autoComplete="name"
+                          placeholder="Enter item name"
+                          value={itemName}
+                          onChange={handleFormChange}
+                          required
+                          className="h-[52px] block w-full rounded-[50px] py-[5px] px-[25px] border-0 focus:outline-none"
+                          />
+                      </div>
                     </div> 
-
-
+                    <div className="flex flex-row justify-between text-black">
+                      <label
+                      htmlFor="fileupload"
+                      className="text-black"
+                      >
+                        Choose Image
+                      </label>
+                      <div className="mt-[10px]">
+                        <input
+                          id="fileupload"
+                          name="fileupload"
+                          type="file"
+                          onChange={handleFormChange}
+                          required
+                          className="h-[52px] block w-full rounded-[50px] py-[5px] px-[25px] border-0 focus:outline-none"
+                        />
+                      </div>
+                    </div> 
                     <div>
                     <button
                         type="submit"
